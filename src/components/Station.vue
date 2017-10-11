@@ -1,6 +1,6 @@
 <template>
   <div class="station" @click="expand = !expand">
-    <h3>{{ station.name }}</h3>
+    <h3>{{ station.name }} <span class="favoriteButton" @click.stop="toggleFavorite"><icon :name="favoriteClass" scale="2"></icon></span></h3>
     <div class="details" v-show="this.expand">
       <b-table striped hover :items="tableData"></b-table>
     </div>
@@ -11,7 +11,7 @@
 import {HTTP} from '../http-common'
 
 export default {
-  props: ['station', 'collapsed'],
+  props: ['station', 'collapsed', 'favorite'],
 
   data () {
     return {
@@ -29,7 +29,8 @@ export default {
           direction: connection.direction
         }
       })
-    }
+    },
+    favoriteClass () { return this.favorite ? 'star' : 'star-o' }
   },
 
   watch: {
@@ -59,6 +60,9 @@ export default {
         console.log(`Error while loading stationboard: ${error}`)
         this.connections = []
       })
+    },
+    toggleFavorite () {
+      this.$emit('toggleFavorite', this.station, this.favorite)
     }
   }
 }
@@ -71,6 +75,15 @@ export default {
     border-radius: 5px;
     margin-top: 5px;
     padding: 10px;
+  }
+
+  .favoriteButton {
+    float: right;
+    visibility: hidden;
+  }
+
+  .station:hover .favoriteButton {
+    visibility: visible;
   }
 </style>
 

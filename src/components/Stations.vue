@@ -7,9 +7,13 @@
     </div>
     <p class="error" v-show="error && error.length">{{ error }}</p>
 
+    <div class="favorites-list">
+      <c-station :station="station" :collapsed="true" v-for="station in favoritedStations" v-bind:key="station.id" v-on:toggleFavorite="toggleFavorite" v-bind:favorite="isFavorite(station.id)"></c-station>
+    </div>
+
     <div class="result-list" v-show="stations && stations.length">
       <h1>Stations</h1>
-      <c-station :station="station" :collapsed="true" v-for="station in stations" v-bind:key="station.id"></c-station>
+      <c-station :station="station" :collapsed="true" v-for="station in stations" v-bind:key="station.id" v-on:toggleFavorite="toggleFavorite" v-bind:favorite="isFavorite(station.id)"></c-station>
     </div>
 
   </div>
@@ -29,7 +33,8 @@ export default {
     return {
       query: '',
       stations: [],
-      error: null
+      error: null,
+      favoritedStations: []
     }
   },
 
@@ -41,6 +46,9 @@ export default {
   },
 
   methods: {
+    isFavorite (stationId) {
+      return !!_.find(this.favoritedStations, favoritedStation => favoritedStation.id === stationId)
+    },
     onSubmit (event) {
       this.queryLocations(this.query)
     },
@@ -57,6 +65,15 @@ export default {
         this.error = error
         this.stations = []
       })
+    },
+    toggleFavorite (station, isFavorite) {
+      if (!isFavorite) {
+        if (!_.find(this.favoritedStations, favoritedStation => favoritedStation.id === station.id)) {
+          this.favoritedStations.push(station)
+        }
+      } else {
+        this.favoritedStations = _.reject(this.favoritedStations, favoritedStation => favoritedStation.id === station.id)
+      }
     }
   }
 }
